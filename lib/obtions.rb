@@ -17,7 +17,11 @@ module Obtions
   VERSION = '0.1'
   ROOTDIR = File.expand_path("#{File.dirname(__FILE__)}/..")
   SPECDIR = "#{ROOTDIR}/spec"
+  DATADIR = "#{SPECDIR}/data"
 end
 
+require     'date'
 require     'ostruct'
+require     'optparse'
 require_all 'obtions'
+require_all 'obtions/elements'

@@ -1,34 +1,79 @@
-describe Obtions do
-  context 'simple flag parsing: "-p"' do
-    subject do
-      Obtions.parse("-p") do
-        flag :p
+describe 'Obtions Base' do
+  context 'parse' do
+    context 'destructive' do
+      it 'should clobber the initial array while parsing' do
+        argv = ["-s", "arg", "spare"]
+
+        out = Obtions.parse! argv do
+          flag :s
+          arg  :first
+        end
+
+        out.s?.should be_true
+        out.first.should == "arg"
+
+        argv.should == ["spare"]
+      end
+
+      it 'cannot work with strings' do
+        argv = "-s arg spare"
+
+        out = Obtions.parse! argv do
+          flag :s
+          arg  :first
+        end
+
+        out.s?.should be_true
+        out.first.should == "arg"
+
+        argv.should == "-s arg spare"
+
       end
     end
 
-    its(:p)  { should be_true }
-    its(:p?) { should be_true }
-  end
+    context 'non-destructive' do
+      it 'should not clobber the initial array while parsing' do
+        argv = ["-s", "arg", "spare"]
 
-  context 'named flag parsing: "-s"' do
-    subject do
-      Obtions.parse("-s") do
-        flag :s, as: "silent"
+        out = Obtions.parse argv do
+          flag :s
+          arg  :first
+        end
+
+        out.s?.should be_true
+        out.first.should == "arg"
+
+        argv.should == ["-s", "arg", "spare"]
       end
     end
-
-    its(:silent)  { should be_true }
-    its(:silent?) { should be_true }
   end
 
-  context 'flags with input: "-p first second"' do
-    subject do
-      Obtions.parse("-p") do
-        flag :p
+  context 'documentation' do
+    context 'arguments' do
+      subject do
+        Obtions.parse "" do
+          flag :s, long: :silent do
+            "Silences all logging output."
+          end
 
-        arg as: "first"
-        arg as: "second"
+          named_arg :config do
+            "Specify the location of the config file."
+          end
+        end
       end
+
+      its(:help) { should include "Silences all logging output." }
+      its(:help) { should include "Specify the location of the config file." }
+    end
+
+    context 'banner' do
+      subject do
+        Obtions.parse "input" do
+          banner "Banner!"
+        end
+      end
+
+      its(:help) { should start_with "Banner!" }
     end
   end
 end
