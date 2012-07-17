@@ -23,6 +23,7 @@ end
 require     'date'
 require     'ostruct'
 require     'optparse'
+require     'shellwords'
 require_all 'obtions'
 require_all 'obtions/elements'
 require_all 'obtions/errors'
