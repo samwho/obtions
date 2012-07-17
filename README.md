@@ -1,5 +1,10 @@
 # Obtions
 
+### Build status
+
+Develop:
+[![Build Status](https://secure.travis-ci.org/samwho/obtions.png?branch=develop)](http://travis-ci.org/samwho/obtions)
+
 Obtions was going to be the scratch to a personal itch that I have: I hate
 using OptionParser to parse in command line arguments. The syntax feels a little
 clunky, there are broken lines everywhere.
