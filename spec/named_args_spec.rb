@@ -19,57 +19,6 @@ describe "Named Arguments" do
     its(:test) { should == "hello" }
   end
 
-  context 'with optional: "--test=hello --debug[=VALUE]"' do
-    context 'optional argument excluded' do
-      subject do
-        Obtions.parse("--test=hello") do
-          named_arg :test
-          named_arg :debug, optional: true
-        end
-      end
-
-      its(:test)  { should == "hello" }
-      its(:debug) { should be_nil }
-    end
-
-    context 'optional argument specified' do
-      subject do
-        Obtions.parse("--test=hello --debug=yes") do
-          named_arg :test
-          named_arg :debug, optional: true
-        end
-      end
-
-      its(:test)  { should == "hello" }
-      its(:debug) { should == "yes" }
-    end
-  end
-
-  # The way that mandatory arguments are processed is really weird. For example,
-  # if I had this Obtions code:
-  #
-  #   Obtions.parse "testing" do
-  #     named_arg :debug # this is mandatory!
-  #   end
-  #
-  # No exception would be raised. However, if I had this:
-  #
-  #   Obtions.parse "testing --debug" do
-  #     named_arg :debug # this is mandatory!
-  #   end
-  #
-  # Then I would get an OptionParser::MissingArgument error.
-  context 'mandatory argument missing' do
-    it "should raise an error" do
-      expect do
-        Obtions.parse("--test=true --debug") do
-          named_arg :test
-          named_arg :debug
-        end
-      end.to raise_error(OptionParser::MissingArgument)
-    end
-  end
-
   context 'with type: "--numeric=10"' do
     subject do
       Obtions.parse("--numeric=10") do
@@ -133,6 +82,78 @@ describe "Named Arguments" do
           end.to raise_error(OptionParser::InvalidArgument)
         end
       end
+    end
+  end
+
+  context 'required args' do
+    context 'when arg is missing' do
+      it 'should raise an error' do
+        expect do
+          Obtions.parse "" do
+            named_arg :debug, required: true
+          end
+        end.to raise_error(Obtions::RequiredArgsMissing)
+      end
+
+      context 'error object' do
+        subject do
+          begin
+            Obtions.parse "" do
+              named_arg :debug, required: true
+            end
+          rescue Exception => e
+            e
+          end
+        end
+
+        it('should have 1 arg') { subject.args.length.should == 1 }
+        it('arg name == :debug') { subject.args.first.name.should == :debug }
+      end
+
+      context 'multiple required args missing' do
+        context 'error.args.map(&:name)' do
+          subject do
+            begin
+              Obtions.parse "" do
+                named_arg :debug, required: true
+                named_arg :test, required: true
+                arg :first, required: true
+              end
+            rescue Exception => e
+              e.args.map &:name
+            end
+          end
+
+          it('should have 3 args')    { subject.length.should == 3 }
+          it('should contain :debug') { subject.should include :debug }
+          it('should contain :test')  { subject.should include :test }
+          it('should contain :first') { subject.should include :first }
+        end
+      end
+
+      context 'required args present' do
+        subject do
+          Obtions.parse "--test=yes --debug true first_arg" do
+            named_arg :debug, required: true
+            named_arg :test, required: true
+            arg :first, required: true
+          end
+        end
+
+        its(:debug) { should == "true" }
+        its(:test) { should == "yes" }
+        its(:first) { should == "first_arg" }
+      end
+    end
+
+    context 'when arg is present' do
+      subject do
+        Obtions.parse "--debug=true" do
+          named_arg :debug, required: true
+        end
+      end
+
+      its(:debug) { should == "true" }
     end
   end
 end

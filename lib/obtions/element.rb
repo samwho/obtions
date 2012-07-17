@@ -1,14 +1,28 @@
 module Obtions
   class Element
+    attr_accessor :name, :options
+
     def initialize name, out, optparse, options = {}
-      @name     = name
-      @out      = out
-      @optparse = optparse
-      @options  = options
+      self.name    = name
+      @out         = out
+      @optparse    = optparse
+      self.options = options
+
+      Obtions.required_args << self if options[:required]
     end
 
     def apply
       raise "This method should be overridden in subclasses of Element."
+    end
+
+    # If you are creating an element that is required in the command line option
+    # string, this is the method that will tell Obtions that it is actually
+    # present.
+    #
+    # This method should be called inside the @optparse.on block.
+    def mark_as_present
+      Obtions.required_args.delete_at(Obtions.required_args.index(self) ||
+                                      Obtions.required_args.length)
     end
 
     def self.convert subject, options = {}

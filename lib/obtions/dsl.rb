@@ -16,6 +16,9 @@ module Obtions
     end
 
     def evaluate! input, &block
+      # Reset the required args array
+      Obtions.required_args = []
+
       instance_eval(&block)
 
       opt_elements.each &:apply
@@ -31,6 +34,10 @@ module Obtions
 
       NonOptElement.args = input
       non_opt_elements.each &:apply
+
+      unless Obtions.required_args.empty?
+        raise RequiredArgsMissing.new(Obtions.required_args)
+      end
 
       # @optparse.to_s is the help documentation that OptionParser creates for
       # us. Add it to the resulting object.
