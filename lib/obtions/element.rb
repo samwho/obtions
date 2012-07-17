@@ -34,6 +34,8 @@ module Obtions
         return Integer(subject, options[:base] || 10)
       elsif type == Float
         return Float(subject)
+      elsif type == Symbol
+        return subject.to_sym
       elsif type == Array
         split = subject.split(/\s*,\s*/)
 

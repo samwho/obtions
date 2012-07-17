@@ -5,13 +5,15 @@ require 'obtions'
 
 o = Obtions.parse! do
   flag :s, long: :silent do
-    "Silence all logging output. Long output message long output message long output message."
+    "Silence all logging output."
   end
-
-  separator file: "test.txt"
 
   named_arg :logfile, type: File do
     "Specify location of log file."
+  end
+
+  arg :first do
+    "First argument."
   end
 end
 

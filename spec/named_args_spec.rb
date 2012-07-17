@@ -41,6 +41,16 @@ describe "Named Arguments" do
     its(:float) { should == 10.45 }
   end
 
+  context 'symbol: "--symbol=hello"' do
+    subject do
+      Obtions.parse("--symbol=hello") do
+        named_arg :symbol, type: Symbol
+      end
+    end
+
+    its(:symbol) { should == :hello }
+  end
+
   context 'invalid data for float: "--float=not_float"' do
     it "should raise an error" do
       expect do
@@ -141,7 +151,7 @@ describe "Named Arguments" do
         end
 
         its(:debug) { should == "true" }
-        its(:test) { should == "yes" }
+        its(:test)  { should == "yes" }
         its(:first) { should == "first_arg" }
       end
     end
